@@ -84,7 +84,7 @@ class SemanticNerfWModel(Model):
         for i, sem_class in enumerate(self.semantics.classes):
             if sem_class == "Car":
                 self.color2label[(0, 139, 139)] = i
-        self.str2semantic = {label: i for i, label in enumerate(self.semantics.classes)}
+        self.str2semantic = {label: i for i, label in enumerate(self.semantics.classes)} #
 
     def populate_modules(self):
         """Set the fields and modules."""

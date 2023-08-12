@@ -167,9 +167,9 @@ class NSGplusDataParserConfig(DataParserConfig):
     """How much to scale the region of interest by."""
     alpha_color: str = "white"
     """alpha color of background"""
-    first_frame: int = 0  
+    first_frame: int = 35  
     """specifies the beginning of a sequence if not the complete scene is taken as Input"""
-    last_frame: int = 198
+    last_frame: int = 190
     """specifies the end of a sequence"""
     use_object_properties: bool = True
     """ use pose and properties of visible objects as an input """
@@ -294,7 +294,7 @@ class NSGplus(DataParser):
         cam_poses_tracking = []
         for cam_i in self.cameras:
             cam_i_imu = calib[f"Tr_cam_to_imu_{cam_i}"]
-            cam_i_w = poses_imu_w_tracking @ cam_i_imu @ opengl2kitti
+            cam_i_w = poses_imu_w_tracking[self.selected_frames[0]:self.selected_frames[1] + 1] @ cam_i_imu @ opengl2kitti
             cam_poses_tracking.append(cam_i_w)
         camera_poses = np.concatenate(cam_poses_tracking)     
 
@@ -433,7 +433,7 @@ class NSGplus(DataParser):
             time_stamp = np.zeros([len(poses), 3])
             print("TIME ONLY WORKS FOR SINGLE SEQUENCES")
             time_stamp[:, 0] = np.repeat(
-                np.linspace(self.selected_frames[0], self.selected_frames[1], len(poses) // 2)[None], 2, axis=0
+                np.linspace(self.selected_frames[0], self.selected_frames[1], len(poses) // 2)[None], 2, axis=0 #to self.selected_frames[1]+1
             ).flatten()
             render_time_stamp = time_stamp
         else:
@@ -528,7 +528,7 @@ class NSGplus(DataParser):
 
             
                 
-        image_filenames = [image_names[i] for i in indices]
+        image_filenames = [image_names[i] for i in indices] # select numbers
         depth_filenames = [depth_names[i] for i in indices[: len(indices)//2]] if self.use_depth else None
         if self.use_semantic:
             semantic_meta.filenames = [semantic_names[i] for i in indices]
@@ -583,7 +583,7 @@ class NSGplus(DataParser):
             mask_filenames=None,
             dataparser_scale=self.scale_factor,
             metadata={
-                "depth_filenames": depth_filenames,
+                "depth_filenames": depth_filenames, #
                 "obj_metadata": obj_meta_tensor if len(obj_meta_tensor) > 0 else None,
                 "obj_class": scene_classes if len(scene_classes) > 0 else None,
                 "scene_obj": scene_objects if len(scene_objects) > 0 else None,
@@ -608,7 +608,8 @@ class NSGplus(DataParser):
     def load_ego_pos(self):
         poses_path = os.path.join(self.data, 'ego_pos_with_vel')
         poses = []
-        for frame in range(self.selected_frames[0], self.selected_frames[1]+1):
+        # for frame in range(self.selected_frames[0], self.selected_frames[1]+1):
+        for frame in range(len(os.listdir(poses_path))):
             info = load_pickle(os.path.join(poses_path, ("%06d"%frame)+".pkl"))
             poses.append(info['ego_pose'])
         return np.array(poses).astype(np.float64)
@@ -631,7 +632,7 @@ class NSGplus(DataParser):
         # Initialize an array to count the number of objects in each frame
         n_obj_in_frame = np.zeros(n_scene_frames)
         
-        for frame in range(start_frame, end_frame):
+        for frame in range(start_frame, end_frame+1):
             objs = load_pickle(os.path.join(self.data, 'auto_label', ("%06d"%frame)+".pkl"))
             for obj in objs:
                 oid, name, meta = int(obj['track_id']), obj['name'], obj['box3d_lidar']

@@ -25,7 +25,11 @@
         "--pipeline.datamanager.dataparser.car-object-latents-path",
         "/data41/luoly/kitti_mot/latents/latent_codes06.pt",
         "--experiment_name",
-        "mars_output_test",
+        "test", 
+        "--pipeline.datamanager.dataparser.first-frame",
+        "5",
+        "--pipeline.datamanager.dataparser.last-frame",
+        "10"
       ]
     },
     {
@@ -43,13 +47,41 @@
         "--experiment_name",
         "nsg-vkitti-recon-02seq05to220",
         "--data",
-        "/data/luoly/dataset/demo/vkitti/Scene02/clone",
+        "/mnt/intel/data/mrb/dataset/vkitti/Scene02/clone",
         "--max-num-iterations",
         "600000",
         "--pipeline.datamanager.dataparser.first-frame",
         "5",
         "--pipeline.datamanager.dataparser.last-frame",
-        "220"
+        "10",
+        "--pipeline.datamanager.dataparser.car_object_latents_path",
+        "/mnt/intel/data/mrb/nerf/mars/pretrain/VituralKITTI2/car-object-latents/latent_codes02.pt",
+        "--pipeline.datamanager.dataparser.car_nerf_state_dict_path",
+        "/mnt/intel/data/mrb/nerf/mars/pretrain/VituralKITTI2/car-nerf-state-dict/epoch_805.ckpt",
+        "--pipeline.datamanager.dataparser.semantic_path", 
+        "/mnt/intel/data/mrb/dataset/vkitti/Scene02/clone/frames/classSegmentation",
+        "--vis" ,"viewer"
+      ]
+    },
+    {
+      "name": "nsg-plus-car-depth-recon-semantic",
+      "type": "python",
+      "request": "launch",
+      "program": "nerfstudio/nerfstudio/scripts/train.py",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "env": {
+        "CUDA_VISIBLE_DEVICES": "6"
+      },
+      "args": [
+        "nsg-plus-car-depth-recon-semantic",
+        "--experiment_name",
+        "test_plus",
+        // "--pipeline.datamanager.dataparser.first-frame",
+        // "10",
+        // "--pipeline.datamanager.dataparser.last-frame",
+        // "20",
+        "--vis" ,"viewer"
       ]
     },
     {
@@ -73,10 +105,23 @@
       "args": [
         "nsg-kitti-car-depth-recon",
         "--experiment_name",
-        "NSG KITTI-0006",
+        "NSG KITTI-0006 test",
         "--data",
-        "/DATA_EDS/wuzr/data/kitti-MOT/training/image_02/0006",
-      ]
+        "/home/rongbo.ma/nerf/suds/data/kitti_mot/training/image_02/0006",
+        "--experiment_name",
+        "test", 
+        "--pipeline.datamanager.dataparser.first-frame",
+        "5",
+        "--pipeline.datamanager.dataparser.last-frame",
+        "10",
+        "--pipeline.datamanager.dataparser.car-nerf-state-dict-path",
+        "pretrain/KITTI-MOT/car-nerf-state-dict/epoch_670.ckpt",
+        "--pipeline.datamanager.dataparser.car-object-latents-path",
+        "pretrain/KITTI-MOT/car-object-latents/latent_codes06.pt",
+      ],
+      "env": {
+        "CUDA_VISIBLE_DEVICES": "7"
+      },
     },
     {
       "name": "KITTI_Recon_NSG_Car",

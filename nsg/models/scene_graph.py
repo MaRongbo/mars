@@ -69,7 +69,7 @@ from nsg.utils.neural_scene_graph_helper import box_pts, combine_z, world2object
 CONSOLE = Console()
 
 # warning: correlating with the dict "_sem2label" in "NSG-Studio/nsg/data/nsg_dataparser.py"
-_type2str = ["Car", None, "Truck"]
+_type2str = ["car", None, "truck"]
 
 
 @dataclass
@@ -173,6 +173,7 @@ class SceneGraphModel(Model):
         self.use_semantic = self.kwargs["use_semantic"]
         if self.use_semantic:
             self.semantics_meta = self.kwargs["semantics_meta"]
+            self.semantic_num = len(self.semantics_meta.classes)
 
         self.object_model_key = object_model_key
 
@@ -513,7 +514,7 @@ class SceneGraphModel(Model):
                 ..., 0
             ]
             rgbs[index[..., 0], index[..., 1], :] = output_obj[class_id]["field_outputs"][FieldHeadNames.RGB][..., :]
-            if self.use_semantic:
+            if self.use_semantic:#
                 semantics[index[..., 0], index[..., 1], self.background_model.str2semantic[_type2str[type_id]]] = 1.0
 
             if not self.training and self.config.debug_object_pose:
@@ -687,7 +688,7 @@ class SceneGraphModel(Model):
                 loss_dict["sky_mask_loss"] = binary_cross_entropy(occ, 1 - sky_mask.float()) + occ[sky_mask].mean()
                 loss_dict["sky_color_loss"] = self.rgb_loss(outputs["sky_rgb"][sky_mask], image[sky_mask])
 
-        if self.training and self.use_depth_loss:
+        if self.training and self.use_depth_loss: # todo check, depth mask wrong use
             assert "depth_image" in batch
             assert "depth_mask" in batch
             depth_gt = batch["depth_image"].to(self.device).float()

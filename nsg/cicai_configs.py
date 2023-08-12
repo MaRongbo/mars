@@ -117,6 +117,7 @@ PLUS_Recon_NSG_Car_Depth_Semantic = MethodSpecification(
             ),
             model=SceneGraphModelConfig(
                 background_model=SemanticNerfWModelConfig(
+                    num_proposal_iterations=1,
                     num_proposal_samples_per_ray=[48],
                     use_single_jitter=False,
                     semantic_loss_weight=0.1

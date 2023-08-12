@@ -73,7 +73,7 @@ class NSGkittiDataset(InputDataset):
         self.use_depth = use_depth
         if use_depth:
             self.depth_filenames = self.metadata["depth_filenames"]
-            self.depth_unit_scale_factor = 0.01  # VKITTI provide depth maps in centimeters
+            self.depth_unit_scale_factor = 1.0  # VKITTI provide depth maps in centimeters
 
     def get_scene_images_tracking(self, l_image_filename):
         imgs = imageio.imread(l_image_filename)
@@ -109,10 +109,17 @@ class NSGkittiDataset(InputDataset):
                 depth_image = get_depth_image_from_path(
                     filepath=filepath, height=height, width=width, scale_factor=scale_factor
                 )  # default interpolation cv2.INTER_NEAREST
-                depth_mask = torch.abs(depth_image / scale_factor - 65535) > 1e-6  # maskout no-depth input
+                # depth_mask = torch.abs(depth_image / scale_factor - 65535) > 1e-6  # maskout no-depth input
+                depth_mask = depth_image / scale_factor > 1e-6  # maskout no-depth input
 
-                metadata["depth_image"] = depth_image
+                metadata["depth_image"] = depth_image #
                 metadata["depth_mask"] = depth_mask
+            else:
+                depth_image = torch.zeros((540,960,1)).to(data['image'].device)
+                depth_mask = depth_image.clone().bool()
+                metadata["depth_image"] = depth_image #
+                metadata["depth_mask"] = depth_mask
+                
 
         # semantic metadata
         if self.use_semantic:
