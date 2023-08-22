@@ -290,6 +290,8 @@ class NSGplus(DataParser):
                 
         # load imu pose        
         poses_imu_w_tracking = self.load_ego_pos() # (n_frames, 4, 4) imu2world
+        pose0 = poses_imu_w_tracking[0].copy()
+        poses_imu_w_tracking = np.linalg.inv(pose0) @ poses_imu_w_tracking
         
         cam_poses_tracking = []
         intrinsics = []
@@ -300,7 +302,7 @@ class NSGplus(DataParser):
             
             if cam_i == 'front_left':
                 K = calib['P1'][None,...].repeat(len(cam_i_w),axis=0)   # cam_pose_num * 3 * 4
-            elif cam_i == 'front-right':
+            elif cam_i == 'front_right':
                 K = calib['P2'][None,...].repeat(len(cam_i_w),axis=0)   # cam_pose_num * 3 * 4
             else:
                 K = calib[f'P_{cam_i}'][None,...].repeat(len(cam_i_w),axis=0)   # cam_pose_num * 3 * 4
@@ -338,7 +340,7 @@ class NSGplus(DataParser):
          # center poses
         poses[:, :3, 3] -= np.mean(poses[:, :3, 3], axis=0)
         # scale poses
-        poses[:, :3, 3] /= np.abs(poses[:, :3, 3]).max()
+        # poses[:, :3, 3] /= np.abs(poses[:, :3, 3]).max()
         transform_matrix = np.array(poses[0] @ np.linalg.inv(camera_poses[0]))
                
         # Align Axis with vkitti axis
